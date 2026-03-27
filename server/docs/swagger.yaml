@@ -1,0 +1,451 @@
+openapi: 3.0.1
+info:
+  title: Herbal CRM API
+  version: 1.0.0
+  description: |
+    API documentation for Herbal CRM. Use the Authorize button to enter your JWT Bearer token for protected endpoints.
+servers:
+  - url: http://localhost:3001
+  - url: https://herbal-crm-api.onrender.com
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: string }
+        googleId: { type: string, nullable: true }
+        name: { type: string }
+        email: { type: string }
+        password: { type: string, nullable: true }
+        role: { type: string, enum: [user, admin] }
+        createdAt: { type: string, format: date-time }
+        isVerified: { type: boolean }
+        verificationToken: { type: string, nullable: true }
+        resetPasswordToken: { type: string, nullable: true }
+        resetPasswordExpires: { type: string, format: date-time, nullable: true }
+    Customer:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string }
+        phone: { type: string, nullable: true }
+        spend: { type: number }
+        visits: { type: integer }
+        lastOrderDate: { type: string, format: date-time }
+        firstOrderDate: { type: string, format: date-time, nullable: true }
+        tags:
+          type: array
+          items: { type: string }
+        location:
+          type: object
+          properties:
+            city: { type: string, nullable: true }
+            state: { type: string, nullable: true }
+            country: { type: string, nullable: true }
+        deviceType: { type: string, enum: [mobile, desktop, tablet, unknown] }
+        acquisitionSource: { type: string, nullable: true }
+        segments:
+          type: array
+          items: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        createdBy: { type: string }
+    Order:
+      type: object
+      properties:
+        id: { type: string }
+        customerId: { type: string }
+        amount: { type: number }
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              qty: { type: integer }
+              price: { type: number }
+        orderDate: { type: string, format: date-time }
+        createdBy: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    Segment:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        rules: { type: object }
+        mongoQuery: { type: object, nullable: true }
+        customerCount: { type: integer }
+        isActive: { type: boolean }
+        lastRun: { type: string, format: date-time, nullable: true }
+        createdBy: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    Campaign:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        message: { type: string }
+        segmentId: { type: string }
+        sentAt: { type: string, format: date-time }
+        customerCount: { type: integer }
+        status: { type: string, enum: [draft, sent, failed] }
+        error: { type: string, nullable: true }
+        createdBy: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    CommLog:
+      type: object
+      properties:
+        id: { type: string }
+        campaignId: { type: string }
+        customerId: { type: string }
+        status: { type: string, enum: [PENDING, SENT, FAILED] }
+        error: { type: string, nullable: true }
+        sentAt: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    GeminiSuggestRequest:
+      type: object
+      properties:
+        segmentName: { type: string }
+        segmentDescription: { type: string }
+    GeminiSuggestResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        suggestions:
+          type: array
+          items:
+            type: object
+            properties:
+              message: { type: string }
+    GeminiNLToRulesRequest:
+      type: object
+      properties:
+        description: { type: string }
+    GeminiNLToRulesResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        rules: { type: object }
+paths:
+  /api/auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: JWT token and user info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string }
+                  user:
+                    $ref: '#/components/schemas/User'
+  /api/auth/register:
+    post:
+      summary: Register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                email: { type: string }
+                password: { type: string }
+      responses:
+        '201':
+          description: Registration success
+  /api/auth/verify-email:
+    get:
+      summary: Verify email
+      parameters:
+        - in: query
+          name: token
+          schema: { type: string }
+      responses:
+        '200':
+          description: Email verified
+  /api/auth/resend-verification:
+    post:
+      summary: Resend verification email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+      responses:
+        '200':
+          description: Verification email resent
+  /api/auth/request-reset:
+    post:
+      summary: Request password reset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+      responses:
+        '200':
+          description: Password reset email sent
+  /api/customers:
+    get:
+      summary: List all customers
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of customers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+    post:
+      summary: Create a new customer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '201':
+          description: Created
+  /api/orders:
+    get:
+      summary: List all orders
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+    post:
+      summary: Create a new order
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '201':
+          description: Created
+  /api/segments:
+    get:
+      summary: List all segments
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of segments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Segment'
+    post:
+      summary: Create a new segment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                rules: { type: object }
+      responses:
+        '201':
+          description: Created
+  /api/segments/preview:
+    post:
+      summary: Preview segment (get count/sample)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rules: { type: object }
+      responses:
+        '200':
+          description: Preview result
+  /api/campaigns:
+    get:
+      summary: List all campaigns
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of campaigns
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Campaign'
+    post:
+      summary: Create and send a campaign
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                message: { type: string }
+                segmentId: { type: string }
+      responses:
+        '201':
+          description: Created
+  /api/analytics/campaigns:
+    get:
+      summary: Get campaign analytics
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: startDate
+          schema: { type: string, format: date }
+        - in: query
+          name: endDate
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Campaign analytics
+  /api/analytics/segments:
+    get:
+      summary: Get segment analytics
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Segment analytics
+  /api/analytics/campaigns/csv:
+    get:
+      summary: Export campaign analytics as CSV
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: CSV file
+  /api/gemini/suggest:
+    post:
+      summary: Generate campaign messages using Gemini
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeminiSuggestRequest'
+      responses:
+        '200':
+          description: AI-generated suggestions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeminiSuggestResponse'
+  /api/gemini/nl-to-rules:
+    post:
+      summary: Convert NL segment description to rules (Gemini)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeminiNLToRulesRequest'
+      responses:
+        '200':
+          description: AI-generated rules
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeminiNLToRulesResponse'
+  /api/vendor/send:
+    post:
+      summary: Simulate vendor delivery (internal/testing)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                campaignId: { type: string }
+                customerId: { type: string }
+                customerEmail: { type: string }
+                customerName: { type: string }
+                message: { type: string }
+      responses:
+        '200':
+          description: Simulated delivery
+  /api/vendor/receipt:
+    post:
+      summary: Simulate vendor delivery receipt (internal/testing)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                campaignId: { type: string }
+                customerId: { type: string }
+                status: { type: string }
+                error: { type: string }
+      responses:
+        '200':
+          description: Receipt queued
+
