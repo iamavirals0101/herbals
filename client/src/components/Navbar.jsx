@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import logo from '../assets/xeno.png';
+import logo from '../assets/herbal.png';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
