@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import logo from '../assets/herbal.png';
+import { Leaf } from 'lucide-react';
+
+function BrandMark() {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="h-10 w-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-sm">
+        <Leaf size={20} />
+      </div>
+      <span className="text-xl font-extrabold tracking-tight text-emerald-700">HERBAL-CRM</span>
+    </div>
+  );
+}
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -38,11 +49,7 @@ export default function Navbar() {
             onClick={handleLogoClick}
             className="flex items-center focus:outline-none"
           >
-            <img
-              src={logo}
-              alt="Herbal CRM Logo"
-              className="h-13 transition duration-300 ease-in-out transform hover:brightness-150 hover:drop-shadow-md"
-            />
+            <BrandMark />
           </button>
         </div>
       </nav>
@@ -58,11 +65,7 @@ export default function Navbar() {
               onClick={handleLogoClick}
               className="flex items-center focus:outline-none"
             >
-              <img
-                src={logo}
-                alt="Herbal CRM Logo"
-                className="h-13 transition duration-300 ease-in-out transform hover:brightness-150 hover:drop-shadow-md"
-              />
+              <BrandMark />
             </button>
             <div className="hidden lg:flex items-center gap-6">
               {user && (
