@@ -5,6 +5,7 @@ import Segment from '../models/Segment.js';
 import CommLog from '../models/CommunicationLog.js';
 import { buildMongoQuery } from '../utils/queryBuilder.js';
 import authenticate from '../middleware/authenticate.js';
+import { sendEmail } from '../utils/emailService.js';
 
 const router = express.Router();
 
@@ -61,30 +62,66 @@ router.post('/', async (req, res) => {
 
     await CommLog.insertMany(commLogs);
 
-    // Simulate sending via dummy vendor API for each customer
-    customers.forEach(async (customer) => {
-      try {
-        await fetch(`${process.env.BACKEND_URL || 'http://localhost:3001'}/api/vendor/send`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            campaignId: campaign._id,
-            customerId: customer._id,
-            customerEmail: customer.email,
-            customerName: customer.name,
-            message
-          })
-        });
-      } catch (err) {
-        console.error('Dummy vendor API error:', err.message);
-      }
-    });
+    const deliveryMode = (process.env.CAMPAIGN_DELIVERY_MODE || 'simulated').toLowerCase();
+    const testRecipient = process.env.CAMPAIGN_TEST_RECIPIENT || 'aviral.sh02@gmail.com';
+
+    if (deliveryMode === 'real') {
+      // Send real emails in background and update delivery logs from SMTP results.
+      customers.forEach(async (customer) => {
+        try {
+          const to = testRecipient || customer.email;
+          const emailResult = await sendEmail(to, campaign.name, campaign.message);
+          await CommLog.updateOne(
+            { campaignId: campaign._id, customerId: customer._id },
+            {
+              $set: {
+                status: emailResult.success ? 'SENT' : 'FAILED',
+                sentAt: emailResult.success ? new Date() : null,
+                error: emailResult.success ? null : (emailResult.error || 'Email send failed')
+              }
+            }
+          );
+        } catch (err) {
+          await CommLog.updateOne(
+            { campaignId: campaign._id, customerId: customer._id },
+            {
+              $set: {
+                status: 'FAILED',
+                sentAt: null,
+                error: err.message || 'Email send failed'
+              }
+            }
+          );
+        }
+      });
+    } else {
+      // Simulate sending via dummy vendor API for each customer
+      customers.forEach(async (customer) => {
+        try {
+          await fetch(`${process.env.BACKEND_URL || 'http://localhost:3001'}/api/vendor/send`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              campaignId: campaign._id,
+              customerId: customer._id,
+              customerEmail: customer.email,
+              customerName: customer.name,
+              message
+            })
+          });
+        } catch (err) {
+          console.error('Dummy vendor API error:', err.message);
+        }
+      });
+    }
 
     res.status(201).json({
       success: true,
       campaign,
       sentTo: customers.length,
-      message: 'Campaign created and delivery is being simulated in the background'
+      message: deliveryMode === 'real'
+        ? `Campaign created and real email delivery started (test recipient: ${testRecipient})`
+        : 'Campaign created and delivery is being simulated in the background'
     });
   } catch (err) {
     console.error('Campaign error:', err);
