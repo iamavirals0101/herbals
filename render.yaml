@@ -25,6 +25,8 @@ services:
         sync: false
       - key: EMAIL_FROM_NAME
         value: Herbal CRM
+      - key: BACKEND_URL
+        sync: false
       - key: FRONTEND_URL
         sync: false
       - key: ALLOWED_ORIGINS

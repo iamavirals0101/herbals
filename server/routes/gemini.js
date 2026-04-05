@@ -5,11 +5,23 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const router = express.Router();
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-console.log('API Key loaded:', process.env.GEMINI_API_KEY ? 'Yes' : 'No');
+const getGeminiModel = () => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey || !apiKey.trim()) return null;
+  const genAI = new GoogleGenerativeAI(apiKey.trim());
+  return genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+};
 
 router.post('/suggest', async (req, res) => {
   try {
+    const model = getGeminiModel();
+    if (!model) {
+      return res.status(500).json({
+        success: false,
+        message: 'Gemini is not configured. Set GEMINI_API_KEY in server/.env and restart backend.'
+      });
+    }
+
     const { segmentName, segmentDescription } = req.body;
 
     if (!segmentName) {
@@ -31,7 +43,6 @@ Segment Name: "${segmentName}"
 ${segmentDescription ? segmentDescription : ''}
 `;
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
@@ -70,6 +81,14 @@ ${segmentDescription ? segmentDescription : ''}
 // New endpoint: Convert NL segment description to rules
 router.post('/nl-to-rules', async (req, res) => {
   try {
+    const model = getGeminiModel();
+    if (!model) {
+      return res.status(500).json({
+        success: false,
+        message: 'Gemini is not configured. Set GEMINI_API_KEY in server/.env and restart backend.'
+      });
+    }
+
     const { description } = req.body;
     if (!description) {
       return res.status(400).json({ success: false, message: 'Description is required' });
@@ -93,7 +112,6 @@ Input: ${description}
 Output:
 `;
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
