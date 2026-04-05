@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import fetch from 'node-fetch';
 
 dotenv.config();
 
@@ -21,6 +22,39 @@ const createTransporter = (port = smtpPort, secure = smtpSecure) =>
     socketTimeout: Number(process.env.SMTP_SOCKET_TIMEOUT_MS || 45000),
     pool: false
   });
+
+const sendViaResend = async (to, subject, text) => {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.EMAIL_FROM || 'onboarding@resend.dev';
+  if (!apiKey || !apiKey.trim()) {
+    return { success: false, error: 'RESEND_API_KEY is missing' };
+  }
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey.trim()}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from,
+      to: Array.isArray(to) ? to : [to],
+      subject,
+      text,
+      html: createEmailTemplate(text)
+    })
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    return {
+      success: false,
+      error: data?.message || `Resend API error (${response.status})`
+    };
+  }
+
+  return { success: true, messageId: data?.id || null };
+};
 
 // Generate a simple HTML email template
 const createEmailTemplate = (message) => {
@@ -46,6 +80,22 @@ const createEmailTemplate = (message) => {
 
 // Send a single email
 export const sendEmail = async (to, subject, text) => {
+  const provider = (process.env.EMAIL_PROVIDER || 'smtp').toLowerCase();
+  if (provider === 'resend') {
+    try {
+      const result = await sendViaResend(to, subject, text);
+      if (result.success) {
+        console.log('Email sent successfully via Resend', result.messageId || '');
+      } else {
+        console.error('Error sending email via Resend', result.error);
+      }
+      return result;
+    } catch (err) {
+      console.error('Error sending email via Resend', err.message);
+      return { success: false, error: err.message || 'Resend send error' };
+    }
+  }
+
   const attempts = [
     { port: smtpPort, secure: smtpSecure },
     // Fallback for providers/environments where implicit SSL port is blocked.
