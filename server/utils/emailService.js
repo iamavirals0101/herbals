@@ -3,19 +3,24 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Configure Nodemailer transporter for Gmail SMTP
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_APP_PASSWORD
-  },
-  pool: true, // Use pooled connections for better performance
-  maxConnections: 5,
-  maxMessages: 100,
-  rateDelta: 1000, // 1 second between batches
-  rateLimit: 5 // Max 5 messages per second
-});
+const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+const smtpPort = Number(process.env.SMTP_PORT || 465);
+const smtpSecure = String(process.env.SMTP_SECURE || 'true').toLowerCase() === 'true';
+
+const createTransporter = (port = smtpPort, secure = smtpSecure) =>
+  nodemailer.createTransport({
+    host: smtpHost,
+    port,
+    secure,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_APP_PASSWORD
+    },
+    connectionTimeout: Number(process.env.SMTP_CONNECTION_TIMEOUT_MS || 30000),
+    greetingTimeout: Number(process.env.SMTP_GREETING_TIMEOUT_MS || 20000),
+    socketTimeout: Number(process.env.SMTP_SOCKET_TIMEOUT_MS || 45000),
+    pool: false
+  });
 
 // Generate a simple HTML email template
 const createEmailTemplate = (message) => {
@@ -41,32 +46,50 @@ const createEmailTemplate = (message) => {
 
 // Send a single email
 export const sendEmail = async (to, subject, text) => {
-  try {
-    const mailOptions = {
-      from: {
-        name: process.env.EMAIL_FROM_NAME,
-        address: process.env.EMAIL_USER
-      },
-      to,
-      subject,
-      text, // Plain text version
-      html: createEmailTemplate(text), // HTML version
-      headers: {
-        'X-Entity-Ref-ID': Date.now().toString(), // Unique ID for each email
-        'List-Unsubscribe': `<mailto:${process.env.EMAIL_USER}?subject=unsubscribe>`,
-        'Precedence': 'bulk', // Mark as bulk email
-        'X-Auto-Response-Suppress': 'OOF, AutoReply' // Suppress auto-replies
-      },
-      priority: 'normal',
-      encoding: 'utf-8'
-    };
+  const attempts = [
+    { port: smtpPort, secure: smtpSecure },
+    // Fallback for providers/environments where implicit SSL port is blocked.
+    { port: 587, secure: false }
+  ];
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', info.messageId);
-    return { success: true, messageId: info.messageId };
+  const mailOptions = {
+    from: {
+      name: process.env.EMAIL_FROM_NAME,
+      address: process.env.EMAIL_USER
+    },
+    to,
+    subject,
+    text, // Plain text version
+    html: createEmailTemplate(text), // HTML version
+    headers: {
+      'X-Entity-Ref-ID': Date.now().toString(), // Unique ID for each email
+      'List-Unsubscribe': `<mailto:${process.env.EMAIL_USER}?subject=unsubscribe>`,
+      'Precedence': 'bulk', // Mark as bulk email
+      'X-Auto-Response-Suppress': 'OOF, AutoReply' // Suppress auto-replies
+    },
+    priority: 'normal',
+    encoding: 'utf-8'
+  };
+
+  try {
+    let lastError = null;
+
+    for (const attempt of attempts) {
+      try {
+        const transporter = createTransporter(attempt.port, attempt.secure);
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`Email sent successfully via ${smtpHost}:${attempt.port}`, info.messageId);
+        return { success: true, messageId: info.messageId };
+      } catch (err) {
+        lastError = err;
+        console.error(`Error sending email via ${smtpHost}:${attempt.port}`, err.message);
+      }
+    }
+
+    return { success: false, error: lastError?.message || 'Unknown email send error' };
   } catch (error) {
-    console.error('Error sending email:', error);
-    return { success: false, error: error.message };
+    console.error('Error sending email:', error.message);
+    return { success: false, error: error.message || 'Unknown email send error' };
   }
 };
 

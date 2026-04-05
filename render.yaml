@@ -25,6 +25,18 @@ services:
         sync: false
       - key: EMAIL_FROM_NAME
         value: Herbal CRM
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: 465
+      - key: SMTP_SECURE
+        value: true
+      - key: SMTP_CONNECTION_TIMEOUT_MS
+        value: 30000
+      - key: SMTP_GREETING_TIMEOUT_MS
+        value: 20000
+      - key: SMTP_SOCKET_TIMEOUT_MS
+        value: 45000
       - key: CAMPAIGN_DELIVERY_MODE
         value: simulated
       - key: CAMPAIGN_TEST_RECIPIENT
