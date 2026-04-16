@@ -22,6 +22,7 @@ export default function App() {
       <Router>
         <Navbar />
         <main className="flex-1 w-full px-4 sm:px-8 py-8">
+          {/* App-level route map keeps public and authenticated screens in one predictable flow. */}
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
