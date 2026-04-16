@@ -32,6 +32,7 @@ const envOrigins = (process.env.ALLOWED_ORIGINS || '')
   .map((o) => o.trim())
   .filter(Boolean);
 
+// Keep origin values unique so CORS checks stay deterministic across local and deployed environments.
 const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
 
 app.use(cors({
