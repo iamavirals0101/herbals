@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaUserPlus, FaUpload, FaUsers, FaRocket, FaBrain } from 'react-icons/fa';
 import logo from '../assets/react.svg';
 
+// Landing page highlights the primary CRM workflow from onboarding to insight generation.
 export default function Landing() {
   return (
     <div className="m-0 min-h-screen bg-gradient-to-br from-blue-100 to-green-100 flex flex-col">
