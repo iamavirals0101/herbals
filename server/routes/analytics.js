@@ -11,6 +11,7 @@ const router = express.Router();
 // Protect all analytics routes: any authenticated user
 router.use(authenticate);
 
+// Aggregation pipeline rolls up campaign delivery metrics for dashboard and CSV export surfaces.
 // GET /api/analytics/campaigns
 // Returns list of campaigns with sent / success / failure counts
 router.get('/campaigns', async (req, res) => {
