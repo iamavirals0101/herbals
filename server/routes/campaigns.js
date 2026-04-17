@@ -11,6 +11,7 @@ const router = express.Router();
 
 router.use(authenticate);
 
+// Campaign creation reuses saved segment rules to keep audience targeting deterministic.
 // Get all campaigns
 router.get('/', async (req, res) => {
   try {
