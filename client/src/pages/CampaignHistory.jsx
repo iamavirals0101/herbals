@@ -14,6 +14,7 @@ import { useAuth } from '../components/AuthContext';
 
 const COLORS = ['#15803d', '#EF4444', '#F59E0B'];
 
+// Shared color palette keeps campaign status charts visually consistent across views.
 // Tooltip for campaign analytics charts
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
