@@ -7,6 +7,7 @@ import { useLocation } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
+// This component orchestrates segment selection, suggestion generation, and final campaign dispatch.
 const CampaignCreator = forwardRef((props, ref) => {
   const { token } = useAuth();
   const location = useLocation();
