@@ -9,6 +9,7 @@ const router = express.Router();
 
 router.use(authenticate);
 
+// Segment endpoints consistently scope data by tenant using req.user._id.
 /**
  * Preview a segment based on query rules
  * Returns count and sample data
