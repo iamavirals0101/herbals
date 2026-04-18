@@ -12,7 +12,7 @@ router.use(authenticate);
 // Segment endpoints consistently scope data by tenant using req.user._id.
 /**
  * Preview a segment based on query rules
- * Returns count and sample data
+ * Returns count and segmented data
  */
 router.post('/preview', async (req, res) => {
   try {
@@ -88,14 +88,14 @@ router.post('/', async (req, res) => {
       });
     }
     
-    // Build MongoDB query for reference (do NOT include createdBy)
+    // Build MongoDB query for reference 
     const mongoQuery = buildMongoQuery(rules);
     
     // Create new segment
     const segment = new Segment({
       name: name.trim(),
       rules,
-      mongoQuery, // Store the compiled query for reference (without createdBy)
+      mongoQuery, // Store the compiled query for reference
       createdBy: req.user._id,
       createdAt: new Date(),
       lastRun: null,
