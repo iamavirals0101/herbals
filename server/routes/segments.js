@@ -1,4 +1,5 @@
 // server/routes/segments.js
+// Segment routes: preserve consistent rule execution contracts between create and preview flows.
 import express from 'express';
 import { buildMongoQuery, validateQuery } from '../utils/queryBuilder.js';
 import Customer from '../models/Customer.js';
