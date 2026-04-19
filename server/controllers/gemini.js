@@ -1,3 +1,4 @@
+// AI orchestration layer: preserve stable prompt-response contracts for campaign generation.
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
 dotenv.config();
