@@ -1,3 +1,4 @@
+// Import workflow: keep parsed customer schema validation aligned with upload UX states.
 import React, { useRef, useState } from 'react';
 import { useAuth } from '../components/AuthContext';
 
