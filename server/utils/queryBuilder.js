@@ -1,3 +1,4 @@
+// Query builder foundation: keep rule parsing deterministic across nested logic groups.
 export function buildMongoQuery(node) {
     if (!node || !Array.isArray(node.rules) || node.rules.length === 0) {
       return {}; // No rules: match all documents
