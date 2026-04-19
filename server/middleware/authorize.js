@@ -1,3 +1,4 @@
+// Authorization guard: keep role checks centralized for route-level policy consistency.
 export default function authorize(roles = []) {
   return (req, res, next) => {
     if (!req.user || (roles.length && !roles.includes(req.user.role))) {
