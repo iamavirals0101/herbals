@@ -1,4 +1,5 @@
 // client/src/components/SegmentBuilder.jsx
+// Segment builder pipeline: keep filter normalization and preview sync aligned.
 import React, { useState, useEffect } from 'react';
 import { QueryBuilder, formatQuery } from 'react-querybuilder';
 import 'react-querybuilder/dist/query-builder.css';
