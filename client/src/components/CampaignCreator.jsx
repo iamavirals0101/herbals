@@ -1,3 +1,4 @@
+// Frontend campaign workflow: align generation actions with selected audience context.
 import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { useAuth } from '../components/AuthContext';
 import { authFetch } from '../utils/authFetch';
