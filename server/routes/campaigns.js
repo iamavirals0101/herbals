@@ -1,4 +1,5 @@
 import express from 'express';
+import crypto from 'crypto';
 import Campaign from '../models/Campaign.js';
 import Customer from '../models/Customer.js';
 import Segment from '../models/Segment.js';
@@ -59,6 +60,7 @@ router.post('/', async (req, res) => {
     const commLogs = customers.map(customer => ({
       campaignId: campaign._id,
       customerId: customer._id,
+      trackingId: crypto.randomUUID(),
       status: 'PENDING',
       sentAt: null
     }));
