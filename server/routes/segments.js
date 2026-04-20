@@ -19,6 +19,7 @@ router.post('/preview', async (req, res) => {
   try {
     const { rules } = req.body;
     
+    // Preview path and save path should always share the same validation contract.
     // Validate the rules
     const validationErrors = validateQuery(rules);
     if (validationErrors.length > 0) {
