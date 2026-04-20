@@ -54,6 +54,7 @@ const CampaignCreator = forwardRef((props, ref) => {
       return;
     }
 
+    // Reset generated state before each request to avoid stale suggestion rendering.
     setLoading(true);
     setSuggestions([]);
     setMessage('');
