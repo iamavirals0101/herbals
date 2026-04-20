@@ -23,6 +23,7 @@ const operatorMap = {
 
 const operatorObjects = Object.entries(operatorMap).map(([name, label]) => ({ name, label }));
 
+// Keep operators list derived from map to avoid label/operator drift across rule rows.
 // Keep field metadata centralized so segment rule rendering and validation stay consistent.
 // Field definitions for the segment builder UI
 const fields = [
