@@ -4,6 +4,7 @@ export function buildMongoQuery(node) {
       return {}; // No rules: match all documents
     }
   
+    // Keep this mapping explicit so future operators can be audited without hidden fallbacks.
     // Operator mapping is intentionally explicit to keep generated Mongo clauses predictable.
     const opsMap = {
       '>': '$gt',
