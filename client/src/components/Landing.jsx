@@ -6,6 +6,7 @@ import logo from '../assets/react.svg';
 // Landing page highlights the primary CRM workflow from onboarding to insight generation.
 export default function Landing() {
   return (
+    // Visual hierarchy here intentionally keeps CTA above feature cards for conversion-first flow.
     <div className="m-0 min-h-screen bg-gradient-to-br from-blue-100 to-green-100 flex flex-col">
       <main className="flex flex-1 flex-col items-center justify-center text-center px-4">
         <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 mb-4 mt-8 md:mb-6 md:mt-12 px-2 md:px-0">
