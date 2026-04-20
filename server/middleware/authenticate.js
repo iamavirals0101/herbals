@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
 export default async function authenticate(req, res, next) {
+  // Authorization header gate is intentionally early to short-circuit unauthenticated requests.
   const auth = req.headers.authorization;
   if (!auth || !auth.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'No token' });
