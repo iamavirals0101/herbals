@@ -10,6 +10,7 @@ import { sendEmail } from '../utils/emailService.js';
 const router = express.Router();
 
 router.use(authenticate);
+const campaignSendDelayMs = () => Number(process.env.CAMPAIGN_SEND_DELAY_MS || 260);
 
 // Campaign creation reuses saved segment rules to keep audience targeting deterministic.
 // Get all campaigns
@@ -69,7 +70,8 @@ router.post('/', async (req, res) => {
 
     if (deliveryMode === 'real') {
       // Send real emails in background and update delivery logs from SMTP results.
-      customers.forEach(async (customer) => {
+      (async () => {
+        for (const customer of customers) {
         try {
           const to = testRecipient || customer.email;
           const emailResult = await sendEmail(to, campaign.name, campaign.message);
@@ -95,7 +97,10 @@ router.post('/', async (req, res) => {
             }
           );
         }
-      });
+          // Avoid provider throttling by spacing send attempts.
+          await new Promise((resolve) => setTimeout(resolve, campaignSendDelayMs()));
+        }
+      })();
     } else {
       // Simulate sending via dummy vendor API for each customer
       customers.forEach(async (customer) => {

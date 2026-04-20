@@ -14,6 +14,8 @@ import segmentRoutes from './routes/segments.js';
 import campaignRoutes from './routes/campaigns.js';
 import analyticsRoutes from './routes/analytics.js';
 import vendorRoutes from './routes/vendor.js';
+import comparatorRoutes from './routes/comparator.js';
+import trackRoutes from './routes/track.js';
 
 dotenv.config();
 const app = express();
@@ -60,6 +62,8 @@ app.use('/api/segments', segmentRoutes);
 app.use('/api/campaigns', campaignRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/vendor', vendorRoutes);
+app.use('/api/comparator', comparatorRoutes);
+app.use('/api/track', trackRoutes);
 
 // Health-check
 app.get('/', (req, res) => res.send('Herbal CRM API is running'));

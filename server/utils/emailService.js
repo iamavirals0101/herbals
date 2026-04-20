@@ -23,7 +23,7 @@ const createTransporter = (port = smtpPort, secure = smtpSecure) =>
     pool: false
   });
 
-const sendViaResend = async (to, subject, text) => {
+const sendViaResend = async (to, subject, text, htmlOverride = null) => {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM || 'onboarding@resend.dev';
   if (!apiKey || !apiKey.trim()) {
@@ -41,7 +41,7 @@ const sendViaResend = async (to, subject, text) => {
       to: Array.isArray(to) ? to : [to],
       subject,
       text,
-      html: createEmailTemplate(text)
+      html: htmlOverride || createEmailTemplate(text)
     })
   });
 
@@ -79,11 +79,12 @@ const createEmailTemplate = (message) => {
 };
 
 // Send a single email
-export const sendEmail = async (to, subject, text) => {
+export const sendEmail = async (to, subject, text, options = {}) => {
+  const htmlOverride = options?.html || null;
   const provider = (process.env.EMAIL_PROVIDER || 'smtp').toLowerCase();
   if (provider === 'resend') {
     try {
-      const result = await sendViaResend(to, subject, text);
+      const result = await sendViaResend(to, subject, text, htmlOverride);
       if (result.success) {
         console.log('Email sent successfully via Resend', result.messageId || '');
       } else {
@@ -110,7 +111,7 @@ export const sendEmail = async (to, subject, text) => {
     to,
     subject,
     text, // Plain text version
-    html: createEmailTemplate(text), // HTML version
+    html: htmlOverride || createEmailTemplate(text), // HTML version
     headers: {
       'X-Entity-Ref-ID': Date.now().toString(), // Unique ID for each email
       'List-Unsubscribe': `<mailto:${process.env.EMAIL_USER}?subject=unsubscribe>`,
