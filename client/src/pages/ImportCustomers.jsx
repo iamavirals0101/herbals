@@ -34,6 +34,7 @@ export default function ImportCustomers() {
       setUploadMessage('Please select a CSV file to upload.');
       return;
     }
+    // Upload state is surfaced immediately so long-running imports have visible progress feedback.
     setUploadMessage('Uploading...');
     try {
       const formData = new FormData();
