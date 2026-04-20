@@ -47,7 +47,15 @@ services:
         value: simulated
       - key: CAMPAIGN_TEST_RECIPIENT
         sync: false
+      - key: CAMPAIGN_SEND_DELAY_MS
+        value: 260
+      - key: COMPARATOR_SEND_DELAY_MS
+        value: 260
+      - key: AB_TESTING_V1
+        value: true
       - key: BACKEND_URL
+        sync: false
+      - key: TRACKING_BASE_URL
         sync: false
       - key: FRONTEND_URL
         sync: false

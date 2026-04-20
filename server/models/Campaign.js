@@ -34,6 +34,33 @@ const campaignSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  abEnabled: {
+    type: Boolean,
+    default: false
+  },
+  splitRatio: {
+    type: Number,
+    min: 1,
+    max: 99,
+    default: 50
+  },
+  variantA: {
+    type: String,
+    default: null
+  },
+  variantB: {
+    type: String,
+    default: null
+  },
+  winnerVariant: {
+    type: String,
+    enum: ['A', 'B', null],
+    default: null
+  },
+  comparatorNotes: {
+    type: String,
+    default: null
+  },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 }, { 
   timestamps: true 

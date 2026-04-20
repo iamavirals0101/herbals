@@ -15,6 +15,7 @@ import VerifyEmail from './pages/VerifyEmail';
 import ResetPasswordRequest from './pages/ResetPasswordRequest';
 import ResetPassword from './pages/ResetPassword';
 import ImportCustomers from './pages/ImportCustomers';
+import CampaignComparator from './pages/CampaignComparator';
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
             <Route path="/segments" element={<ProtectedRoute><SegmentBuilder /></ProtectedRoute>} />
             <Route path="/campaigns" element={<ProtectedRoute><CampaignCreator /></ProtectedRoute>} />
             <Route path="/history" element={<ProtectedRoute><CampaignHistory /></ProtectedRoute>} />
+            <Route path="/campaign-comparator" element={<ProtectedRoute><CampaignComparator /></ProtectedRoute>} />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/reset-password-request" element={<ResetPasswordRequest />} />
             <Route path="/reset-password" element={<ResetPassword />} />

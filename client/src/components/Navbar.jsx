@@ -6,11 +6,11 @@ import { Leaf } from 'lucide-react';
 
 function BrandMark() {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 whitespace-nowrap">
       <div className="h-10 w-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-sm">
         <Leaf size={20} />
       </div>
-      <span className="text-xl font-extrabold tracking-tight text-emerald-700">HERBAL-CRM</span>
+      <span className="text-xl font-extrabold tracking-tight text-emerald-700 leading-none">HERBAL-CRM</span>
     </div>
   );
 }
@@ -26,6 +26,7 @@ export default function Navbar() {
     '/segments': 'Segment Builder',
     '/campaigns': 'Campaign Creator',
     '/history': 'Campaign History',
+    '/campaign-comparator': 'Campaign Comparator',
   };
   const sectionLabel = sectionMap[location.pathname] || null;
 
@@ -60,7 +61,7 @@ export default function Navbar() {
   return (
     <>
       <nav className="bg-white shadow-sm sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto pl-2 pr-4 sm:pl-4 sm:pr-6 lg:pl-2 lg:pr-10">
           <div className="flex justify-between h-16 items-center">
             <button
               onClick={handleLogoClick}
@@ -68,11 +69,12 @@ export default function Navbar() {
             >
               <BrandMark />
             </button>
-            <div className="hidden lg:flex items-center gap-6">
+            <div className="hidden lg:flex items-center gap-8 ml-12 xl:ml-16">
               {user && (
                 <>
                   <Link to="/segments" className={`text-gray-700 hover:text-blue-800 font-medium px-2 pb-1 transition border-b-2 ${location.pathname === '/segments' ? 'border-gray-800' : 'border-transparent'}`}>Segment Builder</Link>
                   <Link to="/campaigns" className={`text-gray-700 hover:text-blue-800 font-medium px-2 pb-1 transition border-b-2 ${location.pathname === '/campaigns' ? 'border-gray-800' : 'border-transparent'}`}>Campaign Creator</Link>
+                  <Link to="/campaign-comparator" className={`text-gray-700 hover:text-blue-800 font-medium px-2 pb-1 transition border-b-2 ${location.pathname === '/campaign-comparator' ? 'border-gray-800' : 'border-transparent'}`}>Campaign Comparator</Link>
                   <Link to="/history" className={`text-gray-700 hover:text-blue-800 font-medium px-2 pb-1 transition border-b-2 ${location.pathname === '/history' ? 'border-gray-800' : 'border-transparent'}`}>Campaign History</Link>
                   <Link to="/import-customers" className={`text-gray-700 hover:text-green-800 font-medium px-2 pb-1 transition border-b-2 ${location.pathname === '/import-customers' ? 'border-green-800' : 'border-transparent'}`}>Import Customers</Link>
                 </>
@@ -85,7 +87,7 @@ export default function Navbar() {
               )}
               {user && (
                 <>
-                  <span className="bg-blue-50 border border-blue-200 text-blue-700 font-semibold mr-2 px-3 py-1 rounded-full shadow-sm flex items-center">
+                  <span className="bg-blue-50 border border-blue-200 text-blue-700 font-semibold mr-2 px-4 py-1 rounded-full shadow-sm flex items-center whitespace-nowrap">
                     {user.name}
                   </span>
                   <button onClick={logout} className="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition">Logout</button>
@@ -116,6 +118,7 @@ export default function Navbar() {
                 <>
                   <Link to="/segments" className={`text-gray-700 hover:text-blue-600 font-medium px-2 pb-1 transition border-b-2 ${location.pathname === '/segments' ? 'border-gray-800' : 'border-transparent'}`} onClick={() => setMenuOpen(false)}>Segment Builder</Link>
                   <Link to="/campaigns" className={`text-gray-700 hover:text-blue-600 font-medium px-2 pb-1 transition border-b-2 ${location.pathname === '/campaigns' ? 'border-gray-800' : 'border-transparent'}`} onClick={() => setMenuOpen(false)}>Campaign Creator</Link>
+                  <Link to="/campaign-comparator" className={`text-gray-700 hover:text-blue-600 font-medium px-2 pb-1 transition border-b-2 ${location.pathname === '/campaign-comparator' ? 'border-gray-800' : 'border-transparent'}`} onClick={() => setMenuOpen(false)}>Campaign Comparator</Link>
                   <Link to="/history" className={`text-gray-700 hover:text-blue-600 font-medium px-2 pb-1 transition border-b-2 ${location.pathname === '/history' ? 'border-gray-800' : 'border-transparent'}`} onClick={() => setMenuOpen(false)}>Campaign History</Link>
                   <Link to="/import-customers" className={`text-gray-700 hover:text-green-600 font-medium px-2 pb-1 transition border-b-2 ${location.pathname === '/import-customers' ? 'border-green-800' : 'border-transparent'}`} onClick={() => setMenuOpen(false)}>Import Customers</Link>
                 </>
@@ -128,7 +131,7 @@ export default function Navbar() {
               )}
               {user && (
                 <>
-                  <span className="bg-blue-50 border border-blue-200 text-blue-700 font-semibold px-3 py-1 rounded-full shadow-sm flex items-center">
+                  <span className="bg-blue-50 border border-blue-200 text-blue-700 font-semibold px-4 py-1 rounded-full shadow-sm flex items-center whitespace-nowrap">
                     {user.name}
                   </span>
                   <button onClick={() => { setMenuOpen(false); logout(); }} className="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition mt-2">Logout</button>
