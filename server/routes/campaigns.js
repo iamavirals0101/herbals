@@ -39,6 +39,7 @@ router.post('/', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Segment not found' });
     }
 
+    // Always rebuild audience query from stored rules to preserve deterministic delivery scope.
     const mongoQuery = { ...buildMongoQuery(segment.rules), createdBy: req.user._id };
     const customers = await Customer.find(mongoQuery).select('email name');
 
