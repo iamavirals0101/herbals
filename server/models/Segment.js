@@ -48,6 +48,7 @@ const SegmentSchema = new mongoose.Schema({
 });
 
 // Add compound unique index for user and name
+// This index protects tenant-level naming consistency for segment retrieval flows.
 SegmentSchema.index({ createdBy: 1, name: 1 }, { unique: true });
 
 // Pre-save hook to update the updatedAt field
