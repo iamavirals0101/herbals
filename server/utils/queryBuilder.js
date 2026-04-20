@@ -35,6 +35,7 @@ export function buildMongoQuery(node) {
     }
   
     function parseNode(n) {
+      // Recursive traversal keeps nested combinator groups composable for future rule extensions.
       // Handle group nodes (AND/OR)
       if (n.combinator && Array.isArray(n.rules)) {
         const clauses = n.rules
