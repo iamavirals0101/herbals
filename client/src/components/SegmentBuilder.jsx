@@ -94,6 +94,7 @@ export default function SegmentBuilder({ onSave }) {
   const [showSampleCustomers, setShowSampleCustomers] = useState(false);
   const navigate = useNavigate();
 
+  // Rule factory keeps newly added rows aligned with configured field/operator defaults.
   // Ensure new rules have proper default values
   const createRule = (field) => {
     const fieldDef = fields.find(f => f.name === field) || fields[0];
