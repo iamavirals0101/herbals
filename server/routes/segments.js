@@ -64,6 +64,7 @@ router.post('/', async (req, res) => {
   try {
     const { name, rules } = req.body;
     
+    // Save endpoint preserves user-isolated segment definitions for downstream campaign targeting.
     if (!name || !name.trim()) {
       return res.status(400).json({
         success: false,

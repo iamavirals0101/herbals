@@ -83,8 +83,9 @@ export function buildMongoQuery(node) {
   }
   
   // Validate query structure and types for supported fields/operators
-  export function validateQuery(query) {
+export function validateQuery(query) {
     const errors = [];
+    // Validation recursion mirrors parser shape so nested rule groups fail fast and consistently.
     function validateNode(node) {
       if (!node || typeof node !== 'object') {
         errors.push('Invalid rule node: not an object');
