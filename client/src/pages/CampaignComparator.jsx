@@ -32,6 +32,7 @@ export default function CampaignComparator() {
   });
 
   const selectedCampaign = useMemo(
+    // Memoized lookup keeps campaign selection stable while stats refreshes run.
     () => campaigns.find((c) => String(c._id || c.id) === String(selectedCampaignId)),
     [campaigns, selectedCampaignId]
   );

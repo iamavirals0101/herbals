@@ -68,6 +68,7 @@ const fields = [
 export default function SegmentBuilder({ onSave }) {
   const { token } = useAuth();
   // Default query ensures first render shows a valid rule for immediate user interaction.
+  // Segment state starts with a safe baseline so preview and save actions have consistent input shape.
   const [query, setQuery] = useState({
     combinator: 'and', 
     rules: [
