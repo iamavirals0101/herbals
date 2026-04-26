@@ -24,6 +24,7 @@ export function buildMongoQuery(node) {
     // Convert string values to appropriate types for MongoDB
     function convertValue(field, value) {
       if (value === null || value === undefined) return null;
+      // Numeric segment attributes are normalized here before operator mapping to Mongo filters.
       switch (field) {
         case 'spend':
         case 'visits':
