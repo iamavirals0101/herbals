@@ -17,6 +17,7 @@ router.use(authenticate);
  */
 router.post('/preview', async (req, res) => {
   try {
+    // Preview execution intentionally mirrors persisted segment logic to keep frontend confidence indicators accurate.
     const { rules } = req.body;
     
     // Preview path and save path should always share the same validation contract.

@@ -1,5 +1,6 @@
 // Query builder foundation: keep rule parsing deterministic across nested logic groups.
 export function buildMongoQuery(node) {
+    // Query translation core is kept side-effect free so segment evaluation remains deterministic per request.
     if (!node || !Array.isArray(node.rules) || node.rules.length === 0) {
       return {}; // No rules: match all documents
     }
