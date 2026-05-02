@@ -1,6 +1,7 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import Customer from '../models/Customer.js';
+import Segment from '../models/Segment.js';
 import authenticate from '../middleware/authenticate.js';
 import multer from 'multer';
 import { parse } from 'csv-parse/sync';
@@ -11,6 +12,38 @@ router.use(authenticate);
 
 // Multer setup for file upload
 const upload = multer({ storage: multer.memoryStorage() });
+
+// DELETE /api/customers/reset
+// Safely clear only the authenticated user's customer data.
+// Optional: pass ?deleteSegments=true to also clear the authenticated user's segments.
+router.delete('/reset', async (req, res) => {
+  try {
+    const deleteSegments =
+      req.query.deleteSegments === 'true' || req.body?.deleteSegments === true;
+
+    const customerDeleteResult = await Customer.deleteMany({ createdBy: req.user._id });
+    let segmentDeleteResult = { deletedCount: 0 };
+
+    if (deleteSegments) {
+      segmentDeleteResult = await Segment.deleteMany({ createdBy: req.user._id });
+    }
+
+    return res.json({
+      success: true,
+      message: deleteSegments
+        ? 'Customers and segments reset successfully'
+        : 'Customers reset successfully',
+      deletedCustomers: customerDeleteResult.deletedCount || 0,
+      deletedSegments: segmentDeleteResult.deletedCount || 0
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to reset customer data',
+      error: err.message
+    });
+  }
+});
 
 // POST /api/customers/import (CSV upload)
 router.post('/import', upload.single('file'), async (req, res) => {
