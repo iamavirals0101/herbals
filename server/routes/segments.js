@@ -9,6 +9,7 @@ import authenticate from '../middleware/authenticate.js';
 const router = express.Router();
 
 router.use(authenticate);
+// Auth middleware is intentionally global in this router so all segment operations stay tenant-scoped by default.
 
 // Segment endpoints consistently scope data by tenant using req.user._id.
 /**
@@ -141,6 +142,7 @@ router.post('/', async (req, res) => {
  */
 router.get('/', async (req, res) => {
   try {
+    // Segment listing returns newest-first to keep recently edited audience definitions easy to access in the UI.
     const segments = await Segment.find({ createdBy: req.user._id })
       .select('name customerCount createdAt lastRun rules')
       .sort({ createdAt: -1 });
