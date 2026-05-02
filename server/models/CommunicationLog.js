@@ -18,7 +18,7 @@ const communicationLogSchema = new mongoose.Schema({
   },
   trackingId: {
     type: String,
-    default: null
+    default: undefined
   },
   variant: {
     type: String,

@@ -105,14 +105,23 @@ const CampaignCreator = forwardRef((props, ref) => {
         token
       );
       const data = await res.json();
-      toast.success(`Campaign sent to ${data.sentTo} customers!`);
+      if (!data.success) {
+        toast.error(data.error ? `${data.message}: ${data.error}` : (data.message || 'Failed to send campaign'));
+        return;
+      }
+
+      const audienceCount =
+        data.sentTo ??
+        data.campaign?.customerCount ??
+        0;
+      toast.success(`Campaign sent to ${audienceCount} customers!`);
       setMessage('');
       setCampaignName('');
       setSelectedSegment('');
       setSuggestions([]);
       setSelectedSuggestion(null);
     } catch (err) {
-      toast.error('Failed to send campaign');
+      toast.error(err.message || 'Failed to send campaign');
       console.error('Campaign error:', err);
     } finally {
       setLoading(false);

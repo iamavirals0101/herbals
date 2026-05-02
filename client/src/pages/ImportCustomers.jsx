@@ -9,6 +9,8 @@ export default function ImportCustomers() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadMessage, setUploadMessage] = useState('');
   const [importResult, setImportResult] = useState(null);
+  const [replaceExisting, setReplaceExisting] = useState(false);
+  const [deleteSegmentsToo, setDeleteSegmentsToo] = useState(false);
   const { token } = useAuth();
 
   const handleDownloadSample = () => {
@@ -35,8 +37,34 @@ export default function ImportCustomers() {
       return;
     }
     // Upload state is surfaced immediately so long-running imports have visible progress feedback.
-    setUploadMessage('Uploading...');
+    setUploadMessage(replaceExisting ? 'Resetting existing data, then uploading...' : 'Uploading...');
     try {
+      if (replaceExisting) {
+        const confirmMessage = deleteSegmentsToo
+          ? 'This will delete your existing customers and saved segments before import. Continue?'
+          : 'This will delete your existing customers before import. Continue?';
+        const confirmed = window.confirm(confirmMessage);
+        if (!confirmed) {
+          setUploadMessage('Import canceled.');
+          return;
+        }
+
+        const resetRes = await fetch(
+          `${import.meta.env.VITE_API_URL}/customers/reset?deleteSegments=${deleteSegmentsToo}`,
+          {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+        const resetData = await resetRes.json();
+        if (!resetData.success) {
+          setUploadMessage(resetData.message || 'Failed to reset existing data.');
+          return;
+        }
+      }
+
       const formData = new FormData();
       formData.append('file', selectedFile);
       const res = await fetch(`${import.meta.env.VITE_API_URL}/customers/import`, {
@@ -90,8 +118,32 @@ export default function ImportCustomers() {
           type="submit"
           className="bg-green-600 text-white px-6 py-2 rounded font-semibold hover:bg-green-700 transition"
         >
-          Upload
+          {replaceExisting ? 'Replace & Upload' : 'Upload'}
         </button>
+        <label className="flex items-start gap-2 text-sm text-gray-700">
+          <input
+            type="checkbox"
+            checked={replaceExisting}
+            onChange={(e) => setReplaceExisting(e.target.checked)}
+            className="mt-1"
+          />
+          <span>
+            Replace existing customers before import
+          </span>
+        </label>
+        {replaceExisting && (
+          <label className="flex items-start gap-2 text-sm text-gray-700 ml-6">
+            <input
+              type="checkbox"
+              checked={deleteSegmentsToo}
+              onChange={(e) => setDeleteSegmentsToo(e.target.checked)}
+              className="mt-1"
+            />
+            <span>
+              Also delete saved segments
+            </span>
+          </label>
+        )}
         {uploadMessage && <div className="text-blue-700 font-medium mt-2">{uploadMessage}</div>}
       </form>
       {importResult && (
