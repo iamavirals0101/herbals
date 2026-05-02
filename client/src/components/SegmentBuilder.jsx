@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 // API base URL (set by environment or fallback to localhost)
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 // Segment builder UX baseline intentionally keeps API resolution predictable across dev and deployed environments.
+// Frontend API fallback is retained to keep local onboarding friction low for first-time contributors.
 
 // Operator label map for user-friendly text
 const operatorMap = {
@@ -156,6 +157,7 @@ export default function SegmentBuilder({ onSave }) {
 
   // Preview segment results from backend
   const handlePreview = async () => {
+    // Preview is intentionally non-persistent so teams can iterate on targeting logic before naming/saving a segment.
     if (!validateQuery()) {
       return;
     }
