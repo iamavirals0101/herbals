@@ -45,7 +45,7 @@ router.delete('/reset', async (req, res) => {
   }
 });
 
-// POST /api/customers/import (CSV upload)
+// POST /api/customers/import (Bulk CSV upload)
 router.post('/import', upload.single('file'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ success: false, message: 'No file uploaded' });
