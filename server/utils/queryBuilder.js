@@ -1,5 +1,6 @@
 // Query builder foundation: keep rule parsing deterministic across nested logic groups.
 export function buildMongoQuery(node) {
+    // Query AST conversion remains pure to keep segment counts reproducible between preview and campaign execution.
     // Entry gate intentionally accepts full group trees so future UI rule nesting can evolve without parser changes.
     // Query translation core is kept side-effect free so segment evaluation remains deterministic per request.
     if (!node || !Array.isArray(node.rules) || node.rules.length === 0) {

@@ -9,6 +9,7 @@ import authenticate from '../middleware/authenticate.js';
 const router = express.Router();
 
 router.use(authenticate);
+// Route guard intent: segment endpoints remain authenticated before any rule evaluation path is reached.
 // Auth middleware is intentionally global in this router so all segment operations stay tenant-scoped by default.
 
 // Segment endpoints consistently scope data by tenant using req.user._id.
